@@ -38,7 +38,11 @@ for person in nc_releases[1:]:
     print(URL)
     page = requests.get(URL, headers=headers)
     soup = BeautifulSoup(page.content, 'html.parser')
+
+    # Pull out element where person level data is contained
     results = soup.find_all('div', class_='PersonItem')
+
+    # Get birthyear from nc releases
     if int(person[7].split('/')[2]) < 10:
         release_birth_year = '20' + person[7].split('/')[2]
     else:
@@ -49,6 +53,7 @@ for person in nc_releases[1:]:
     # Download
     # open("./output/" + today + "/" + person[2] + person[1] + ".html", "w").write(page.text)
 
+    # No results then just create a row with only the release data and blank obiturary data
     if not results:
         obit_text = ''
         obit_age = ''
@@ -58,6 +63,7 @@ for person in nc_releases[1:]:
         new_row = [person[2], person[1], person[3], person[7], person[20], 'No']
         legacy_dot_com_results.append(new_row)
     
+    # Otherwise give all obituary variables a empty value
     for result in results:
         obit_text = ''
         obit_age = ''
@@ -77,6 +83,8 @@ for person in nc_releases[1:]:
         # if results[0].find('div', class_='personDetails') is not None:
         #     obit_link = results[0].find('div', class_='personDetails').find('a', href=True)['href']
 
+        # Use beautiful soup to search through PersonItem and extract
+        # text / values from divs
         if result.find('div', class_='obitText') is not None:
             obit_text = result.find('div', class_='obitText').text
         if result.find('div', class_='PersonAge') is not None:
