@@ -71,6 +71,7 @@ for person in nc_releases[1:]:
         obit_name = ''
         obit_link = ''
         obit_birth_year = 0
+        obit_death_year = 0
 
         # if results[0].find('div', class_='obitText') is not None:
         #     obit_text = results[0].find('div', class_='obitText').text
@@ -103,25 +104,34 @@ for person in nc_releases[1:]:
             print(obit_birth_year)
             if len(obit_death_year) > 4:
                 obit_death_year = obit_death_year[-4:]
-        elif obit_text is not None:
+        elif len(re.findall('(\d{4})', obit_text)) > 0:
             years_in_text = re.findall('(\d{4})', obit_text)
             for year in years_in_text:
-                if int(year) >= 2018 and int(year) <= 2021:
+                if int(year) >= 1990 and int(year) <= 2021:
                     obit_death_year = int(year)
-                elif int(year) > 1910 and int(year) <= 2005:
+                    break
+            for year in years_in_text:   
+                if int(year) > 1910 and int(year) <= 2005:
                     obit_birth_year = int(year)
+                    break
         else:
             obit_death_year = None
+            obit_birth_year = None
+        
+        if obit_death_year == 0:
+            obit_death_year = None
+        if obit_birth_year == 0:
             obit_birth_year = None
         
         # Get Obit Age
         if (len(obit_age_data.split('Age ')) == 2):
             obit_true_age = obit_age_data.split('Age ')[1][0:2]
-        elif len(re.findall('(\s\d{2})', obit_text)) > 0:
-            ages_in_text = re.findall('(\s\d{2})', obit_text)
+        elif len(re.findall('(\s\d{2},)', obit_text)) > 0:
+            ages_in_text = re.findall('(\s\d{2},)', obit_text)
             for age in ages_in_text:
-                if int(age) >= 16:
-                    obit_true_age = int(age)
+                if int(age.rstrip(',')) >= 16:
+                    obit_true_age = int(age.rstrip(','))
+                    break
         elif obit_death_year is not None and obit_birth_year is not None:
             obit_true_age = int(obit_death_year) - int(obit_birth_year)
         else:
@@ -141,6 +151,7 @@ for person in nc_releases[1:]:
                 obit_name = ''
                 obit_link = ''
                 obit_birth_year = 0
+                obit_death_year = 0
 
                 if backup.find('div', class_='obitText') is not None:
                     obit_text = backup.find('div', class_='obitText').text
@@ -160,32 +171,43 @@ for person in nc_releases[1:]:
                     print(obit_birth_year)
                     if len(obit_death_year) > 4:
                         obit_death_year = obit_death_year[-4:]
-                elif obit_text is not None:
+                elif len(re.findall('(\d{4})', obit_text)) > 0:
                     years_in_text = re.findall('(\d{4})', obit_text)
                     for year in years_in_text:
-                        if int(year) >= 2018 and int(year) <= 2021:
+                        if int(year) >= 1990 and int(year) <= 2021:
                             obit_death_year = int(year)
-                        elif int(year) > 1910 and int(year) <= 2005:
+                            break
+                    for year in years_in_text:   
+                        if int(year) > 1910 and int(year) <= 2005:
                             obit_birth_year = int(year)
+                            break
                 else:
                     obit_death_year = None
+                    obit_birth_year = None
+
+                if obit_death_year == 0:
+                    obit_death_year = None
+                if obit_birth_year == 0:
                     obit_birth_year = None
                 
                 # Go to next if obit death year is < 2017 
                 if obit_death_year is not None:
                     if int(obit_death_year) < 2017:
                         continue
+                elif obit_death_year is None and obit_birth_year is None:
+                    continue
                 elif backup == results[-1]:
                     break
 
                 # Get Obit Age
                 if (len(obit_age_data.split('Age ')) == 2):
                     obit_true_age = obit_age_data.split('Age ')[1][0:2]
-                elif obit_text is not None:
-                    ages_in_text = re.findall('(\s\d{2})', obit_text)
+                elif len(re.findall('(\s\d{2},)', obit_text)) > 0:
+                    ages_in_text = re.findall('(\s\d{2},)', obit_text)
                     for age in ages_in_text:
-                        if int(age) >= 16:
-                            obit_true_age = int(age)
+                        if int(age.rstrip(',')) >= 16:
+                            obit_true_age = int(age.rstrip(','))
+                            break
                 elif obit_death_year is not None and obit_birth_year is not None:
                     obit_true_age = int(obit_death_year) - int(obit_birth_year)
                 else:
