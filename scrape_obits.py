@@ -103,18 +103,25 @@ for person in nc_releases[1:]:
             print(obit_birth_year)
             if len(obit_death_year) > 4:
                 obit_death_year = obit_death_year[-4:]
+        elif obit_text is not None:
+            years_in_text = re.findall('(\d{4})', obit_text)
+            for year in years_in_text:
+                if int(year) >= 2018 and int(year) <= 2021:
+                    obit_death_year = int(year)
+                elif int(year) > 1910 and int(year) <= 2005:
+                    obit_birth_year = int(year)
         else:
             obit_death_year = None
             obit_birth_year = None
-            # years_in_text = re.findall('(\d{4})', obit_text)
-            # obit_death_year = 0
-            # for year in years_in_text:
-            #     if int(year) > obit_death_year:
-            #         obit_death_year = int(year)
         
         # Get Obit Age
         if (len(obit_age_data.split('Age ')) == 2):
             obit_true_age = obit_age_data.split('Age ')[1][0:2]
+        elif len(re.findall('(\s\d{2})', obit_text)) > 0:
+            ages_in_text = re.findall('(\s\d{2})', obit_text)
+            for age in ages_in_text:
+                if int(age) >= 16:
+                    obit_true_age = int(age)
         elif obit_death_year is not None and obit_birth_year is not None:
             obit_true_age = int(obit_death_year) - int(obit_birth_year)
         else:
@@ -122,7 +129,7 @@ for person in nc_releases[1:]:
         
         new_row = [person[2], person[1], person[3], person[7], person[20], 'Yes', obit_name, obit_age_data, obit_true_age, obit_birth_year, obit_death_year, obit_location, obit_text, obit_link]
 
-        # match birth year
+        # We are matching based on Name and Birth Year
         if release_birth_year in obit_age_data or release_birth_year in obit_text:
             legacy_dot_com_results.append(new_row)
             break
@@ -153,14 +160,16 @@ for person in nc_releases[1:]:
                     print(obit_birth_year)
                     if len(obit_death_year) > 4:
                         obit_death_year = obit_death_year[-4:]
+                elif obit_text is not None:
+                    years_in_text = re.findall('(\d{4})', obit_text)
+                    for year in years_in_text:
+                        if int(year) >= 2018 and int(year) <= 2021:
+                            obit_death_year = int(year)
+                        elif int(year) > 1910 and int(year) <= 2005:
+                            obit_birth_year = int(year)
                 else:
                     obit_death_year = None
                     obit_birth_year = None
-                    # years_in_text = re.findall('(\d{4})', obit_text)
-                    # obit_death_year = 0
-                    # for year in years_in_text:
-                    #     if int(year) > obit_death_year:
-                    #         obit_death_year = int(year)
                 
                 # Go to next if obit death year is < 2017 
                 if obit_death_year is not None:
@@ -172,6 +181,11 @@ for person in nc_releases[1:]:
                 # Get Obit Age
                 if (len(obit_age_data.split('Age ')) == 2):
                     obit_true_age = obit_age_data.split('Age ')[1][0:2]
+                elif obit_text is not None:
+                    ages_in_text = re.findall('(\s\d{2})', obit_text)
+                    for age in ages_in_text:
+                        if int(age) >= 16:
+                            obit_true_age = int(age)
                 elif obit_death_year is not None and obit_birth_year is not None:
                     obit_true_age = int(obit_death_year) - int(obit_birth_year)
                 else:
@@ -202,6 +216,7 @@ for person in nc_releases[1:]:
 
     #     new_row = [person[2], person[1], 'Yes', obit_name, obit_age, obit_location, obit_text]
     #     legacy_dot_com_results.append(new_row)
+    break
 
 with open("./output/all_random_1_out.csv", "w") as f:
     writer = csv.writer(f, delimiter=",")
