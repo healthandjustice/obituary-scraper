@@ -30,7 +30,8 @@ headers = {
 nc_releases = list(csv.reader(open('./data/all_random_1.csv')))
 # nc_releases = list(csv.reader(open('./data/test_nc_releases.csv')))
 
-legacy_dot_com_results = [['Release_First_Name', 'Release_Last_Name', 'Release_Middle_Initial', 'Release_Birthdate', 'Release_Date', 'Obituary_Found', 'Obituary_Name', 'Obituary_Date_Info', 'Obituary_Death_Age', 'Obituary_Birth_Year', 'Obituary_Death_Year', 'Obituary_Location', 'Obituary_Text', 'Obituary_Link']]
+legacy_dot_com_results = [['Release_First_Name', 'Release_Last_Name', 'Release_Middle_Initial', 'Release_Birthdate', 'Release_Date', 'Obituary_Found', 'Obituary_First_Name', 'Obituary_Middle_Name', 'Obituary_Last_Name', 'Obituary_Date_Info', 'Obituary_Death_Age', 'Obituary_Birth_Year', 'Obituary_Death_Year', 'Obituary_Location', 'Obituary_Text', 'Obituary_Link']]
+counter = 0
 
 for person in nc_releases[1:]:
     print(person[1] + ', ' + person[2])
@@ -67,6 +68,7 @@ for person in nc_releases[1:]:
     for result in results:
         obit_text = ''
         obit_age = ''
+        obit_true_age = None
         obit_location = ''
         obit_name = ''
         obit_link = ''
@@ -126,8 +128,10 @@ for person in nc_releases[1:]:
         # Get Obit Age
         if (len(obit_age_data.split('Age ')) == 2):
             obit_true_age = obit_age_data.split('Age ')[1][0:2]
-        elif len(re.findall('(\s\d{2},)', obit_text)) > 0:
-            ages_in_text = re.findall('(\s\d{2},)', obit_text)
+        elif (len(obit_text.split('Age ')) == 2):
+            obit_true_age = obit_text.split('Age ')[1][0:2]
+        elif len(re.findall('(\s\d{2},?!\s,\d{4})', obit_text)) > 0:
+            ages_in_text = re.findall('(\s\d{2},?!\s,\d{4})', obit_text)
             for age in ages_in_text:
                 if int(age.rstrip(',')) >= 16:
                     obit_true_age = int(age.rstrip(','))
@@ -137,7 +141,24 @@ for person in nc_releases[1:]:
         else:
             obit_true_age = None
         
-        new_row = [person[2], person[1], person[3], person[7], person[20], 'Yes', obit_name, obit_age_data, obit_true_age, obit_birth_year, obit_death_year, obit_location, obit_text, obit_link]
+        # Split obit_name
+        obit_first_name = ''
+        obit_middle_name = ''
+        obit_last_name = ''
+        exploded_name = obit_name.split(' ')
+        if (len(exploded_name) == 2):
+            obit_first_name = exploded_name[0]
+            obit_last_name = exploded_name[1]
+        elif (len(exploded_name) == 3):
+            obit_first_name = exploded_name[0]
+            obit_last_name = exploded_name[2]
+            obit_middle_name = exploded_name[1]
+        elif (len(exploded_name) == 1):
+            obit_first_name = exploded_name[0]
+        else:
+            obit_first_name = obit_name
+
+        new_row = [person[2], person[1], person[3], person[7], person[20], 'Yes', obit_first_name, obit_middle_name, obit_last_name, obit_age_data, obit_true_age, obit_birth_year, obit_death_year, obit_location, obit_text, obit_link]
 
         # We are matching based on Name and Birth Year
         if release_birth_year in obit_age_data or release_birth_year in obit_text:
@@ -147,6 +168,7 @@ for person in nc_releases[1:]:
             for backup in results:
                 obit_text = ''
                 obit_age_data = ''
+                obit_true_age = None
                 obit_location = ''
                 obit_name = ''
                 obit_link = ''
@@ -202,8 +224,10 @@ for person in nc_releases[1:]:
                 # Get Obit Age
                 if (len(obit_age_data.split('Age ')) == 2):
                     obit_true_age = obit_age_data.split('Age ')[1][0:2]
-                elif len(re.findall('(\s\d{2},)', obit_text)) > 0:
-                    ages_in_text = re.findall('(\s\d{2},)', obit_text)
+                elif (len(obit_text.split('Age ')) == 2):
+                    obit_true_age = obit_text.split('Age ')[1][0:2]
+                elif len(re.findall('(\s\d{2},?!\s,\d{4})', obit_text)) > 0:
+                    ages_in_text = re.findall('(\s\d{2},?!\s,\d{4})', obit_text)
                     for age in ages_in_text:
                         if int(age.rstrip(',')) >= 16:
                             obit_true_age = int(age.rstrip(','))
@@ -213,7 +237,24 @@ for person in nc_releases[1:]:
                 else:
                     obit_true_age = None
 
-                new_row = [person[2], person[1], person[3], person[7], person[20], 'Yes', obit_name, obit_age_data, obit_true_age, obit_birth_year, obit_death_year, obit_location, obit_text, obit_link]
+                # Split obit_name
+                obit_first_name = ''
+                obit_middle_name = ''
+                obit_last_name = ''
+                exploded_name = obit_name.split(' ')
+                if (len(exploded_name) == 2):
+                    obit_first_name = exploded_name[0]
+                    obit_last_name = exploded_name[1]
+                elif (len(exploded_name) == 3):
+                    obit_first_name = exploded_name[0]
+                    obit_last_name = exploded_name[2]
+                    obit_middle_name = exploded_name[1]
+                elif (len(exploded_name) == 1):
+                    obit_first_name = exploded_name[0]
+                else:
+                    obit_first_name = obit_name
+
+                new_row = [person[2], person[1], person[3], person[7], person[20], 'Yes',  obit_first_name, obit_middle_name, obit_last_name, obit_age_data, obit_true_age, obit_birth_year, obit_death_year, obit_location, obit_text, obit_link]
                 legacy_dot_com_results.append(new_row)
 
     # delays = [7, 4, 6, 2, 3, 9]
@@ -238,7 +279,10 @@ for person in nc_releases[1:]:
 
     #     new_row = [person[2], person[1], 'Yes', obit_name, obit_age, obit_location, obit_text]
     #     legacy_dot_com_results.append(new_row)
-    break
+    # break
+    if counter == 10:
+        break
+    counter = counter + 1
 
 with open("./output/all_random_1_out.csv", "w") as f:
     writer = csv.writer(f, delimiter=",")
