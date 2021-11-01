@@ -61,6 +61,7 @@ for person in nc_releases[1:]:
         obit_location = ''
         obit_name = ''
         obit_link = ''
+        obit_true_age = None
         new_row = [person[2], person[1], person[3], person[7], person[20], 'No']
         legacy_dot_com_results.append(new_row)
     
@@ -130,16 +131,26 @@ for person in nc_releases[1:]:
             obit_true_age = obit_age_data.split('Age ')[1][0:2]
         elif (len(obit_text.split('Age ')) == 2):
             obit_true_age = obit_text.split('Age ')[1][0:2]
+        elif len(re.findall('(,\s\d{2},)', obit_text)) > 0:
+            ages_in_text = re.findall('(,\s\d{2},)', obit_text)
+            for age in ages_in_text:
+                clean_age = age.replace(",", "")
+                clean_age = clean_age.replace(" ", "")
+                if int(clean_age) >= 16:
+                    obit_true_age = int(clean_age)
+                    break
         elif len(re.findall('(\s\d{2},?!\s,\d{4})', obit_text)) > 0:
             ages_in_text = re.findall('(\s\d{2},?!\s,\d{4})', obit_text)
             for age in ages_in_text:
                 if int(age.rstrip(',')) >= 16:
                     obit_true_age = int(age.rstrip(','))
                     break
-        elif obit_death_year is not None and obit_birth_year is not None:
+        if obit_death_year is not None and obit_birth_year is not None:
             obit_true_age = int(obit_death_year) - int(obit_birth_year)
-        else:
-            obit_true_age = None
+        
+        # Fill in birth year if we have death year and age
+        if obit_death_year is not None and obit_true_age is not None and obit_birth_year is None:
+            obit_birth_year = int(obit_death_year) - int(obit_true_age)
         
         # Split obit_name
         obit_first_name = ''
@@ -161,7 +172,7 @@ for person in nc_releases[1:]:
         new_row = [person[2], person[1], person[3], person[7], person[20], 'Yes', obit_first_name, obit_middle_name, obit_last_name, obit_age_data, obit_true_age, obit_birth_year, obit_death_year, obit_location, obit_text, obit_link]
 
         # We are matching based on Name and Birth Year
-        if release_birth_year in obit_age_data or release_birth_year in obit_text:
+        if release_birth_year in obit_age_data or release_birth_year in obit_text or int(release_birth_year if release_birth_year is not None else 0) == int(obit_birth_year if obit_birth_year is not None else 0):
             legacy_dot_com_results.append(new_row)
             break
         elif result == results[-1]:
@@ -226,16 +237,26 @@ for person in nc_releases[1:]:
                     obit_true_age = obit_age_data.split('Age ')[1][0:2]
                 elif (len(obit_text.split('Age ')) == 2):
                     obit_true_age = obit_text.split('Age ')[1][0:2]
+                elif len(re.findall('(,\s\d{2},)', obit_text)) > 0:
+                    ages_in_text = re.findall('(,\s\d{2},)', obit_text)
+                    for age in ages_in_text:
+                        clean_age = age.replace(",", "")
+                        clean_age = clean_age.replace(" ", "")
+                        if int(clean_age) >= 16:
+                            obit_true_age = int(clean_age)
+                            break
                 elif len(re.findall('(\s\d{2},?!\s,\d{4})', obit_text)) > 0:
                     ages_in_text = re.findall('(\s\d{2},?!\s,\d{4})', obit_text)
                     for age in ages_in_text:
                         if int(age.rstrip(',')) >= 16:
                             obit_true_age = int(age.rstrip(','))
                             break
-                elif obit_death_year is not None and obit_birth_year is not None:
+                if obit_death_year is not None and obit_birth_year is not None:
                     obit_true_age = int(obit_death_year) - int(obit_birth_year)
-                else:
-                    obit_true_age = None
+
+                # Fill in birth year if we have death year and age
+                if obit_death_year is not None and obit_true_age is not None and obit_birth_year is None:
+                    obit_birth_year = int(obit_death_year) - int(obit_true_age)
 
                 # Split obit_name
                 obit_first_name = ''
@@ -256,6 +277,11 @@ for person in nc_releases[1:]:
 
                 new_row = [person[2], person[1], person[3], person[7], person[20], 'Yes',  obit_first_name, obit_middle_name, obit_last_name, obit_age_data, obit_true_age, obit_birth_year, obit_death_year, obit_location, obit_text, obit_link]
                 legacy_dot_com_results.append(new_row)
+
+                # We are matching based on Name and Birth Year
+                if release_birth_year in obit_age_data or release_birth_year in obit_text or int(release_birth_year if release_birth_year is not None else 0) == int(obit_birth_year if obit_birth_year is not None else 0):
+                    legacy_dot_com_results.append(new_row)
+                    break
 
     # delays = [7, 4, 6, 2, 3, 9]
     # delay = numpy.random.choice(delays)
@@ -280,7 +306,7 @@ for person in nc_releases[1:]:
     #     new_row = [person[2], person[1], 'Yes', obit_name, obit_age, obit_location, obit_text]
     #     legacy_dot_com_results.append(new_row)
     # break
-    if counter == 10:
+    if counter == 101:
         break
     counter = counter + 1
 

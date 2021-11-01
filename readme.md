@@ -9,3 +9,5 @@ The second element is:
 > 'obit_text = result.find('div', class_='obitText').text'
 
 There are several methods used to parse years and age values from these text blurbs.
+
+The code only looks for people with death years > 2017. This is project specific and can be adjusted in the code.
