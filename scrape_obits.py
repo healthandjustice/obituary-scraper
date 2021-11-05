@@ -306,9 +306,9 @@ for person in nc_releases[1:]:
     #     new_row = [person[2], person[1], 'Yes', obit_name, obit_age, obit_location, obit_text]
     #     legacy_dot_com_results.append(new_row)
     # break
-    if counter == 101:
-        break
-    counter = counter + 1
+    # if counter == 1001:
+    #     break
+    # counter = counter + 1
 
 with open("./output/all_random_1_out.csv", "w") as f:
     writer = csv.writer(f, delimiter=",")
